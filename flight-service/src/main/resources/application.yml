@@ -5,6 +5,19 @@ spring:
   application:
     name: flight-service
 
+  datasource:
+    url: jdbc:postgresql://localhost:5432/flight_db
+    username: postgres
+    password: postgres
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
 eureka:
   client:
     service-url:
