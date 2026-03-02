@@ -5,8 +5,8 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 public record FlightResponseDto(UUID id,
-                                AirportDto departureAirport,
-                                AirportDto arrivalAirport,
+                                UUID departureAirport,
+                                UUID arrivalAirport,
                                 LocalDateTime departureDateTime,
                                 LocalDateTime returnDateTime,
                                 Double price) {

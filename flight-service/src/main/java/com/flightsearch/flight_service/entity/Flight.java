@@ -1,9 +1,6 @@
 package com.flightsearch.flight_service.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -12,8 +9,9 @@ import java.util.UUID;
 @Table(name = "flights")
 public class Flight {
 
-    @Column(name ="flight_id")
     @Id
+    @GeneratedValue
+    @Column(name ="flight_id")
     private UUID id;
 
     @Column(nullable = false)
@@ -25,14 +23,17 @@ public class Flight {
     @Column(nullable = false)
     private LocalDateTime departureDate;
 
-    @Column(nullable = false)
-    private LocalDateTime arrivalDate;
+    @Column(nullable = true)
+    private LocalDateTime returnDate;
 
 
 
     @Column(nullable = false)
     private Double price;
 
+
+    protected Flight() {
+    }
 
     public Flight(UUID departureAirportId,
                   UUID arrivalAirportId,
@@ -42,6 +43,7 @@ public class Flight {
         this.departureAirportId = departureAirportId;
         this.arrivalAirportId = arrivalAirportId;
         this.departureDate = departureDate;
+        this.returnDate = returnDate;
         this.price = price;
     }
 
@@ -62,8 +64,8 @@ public class Flight {
         return departureDate;
     }
 
-    public LocalDateTime getArrivalDate() {
-        return arrivalDate;
+    public LocalDateTime getReturnDate() {
+        return returnDate;
     }
 
     public Double getPrice() {
