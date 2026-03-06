@@ -1,0 +1,29 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: api-gateway
+
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: true # Servisleri Eureka üzerinden otomatik bulmasını sağlar
+      routes:
+        # Flight Service Yönlendirmesi
+        - id: flight-service
+          uri: lb://flight-service # lb: load balancer (Eureka'daki isimle bulur)
+          predicates:
+            - Path=/flights/**
+
+        # Airport Service Yönlendirmesi
+        - id: airport-service
+          uri: lb://airport-service
+          predicates:
+            - Path=/airports/**
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka

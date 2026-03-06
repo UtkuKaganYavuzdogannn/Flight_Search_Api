@@ -1,7 +1,7 @@
 package com.flightsearch.flight_service.service;
 
 
-import com.flightsearch.airport_service.application.dto.response.AirportResponseDto;
+
 import com.flightsearch.flight_service.application.dto.response.AirportDto;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;

@@ -36,8 +36,8 @@ public class FlightController {
         Flight flight = new Flight(
                 requestDto.departureAirportId(),
                 requestDto.arrivalAirportId(),
-                requestDto.departureDateTime(),
-                requestDto.returnDateTime(),
+                requestDto.departureDate(),
+                requestDto.returnDate(),
                 requestDto.price()
         );
 
