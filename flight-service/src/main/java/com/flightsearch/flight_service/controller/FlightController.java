@@ -1,15 +1,15 @@
 package com.flightsearch.flight_service.controller;
 
-import com.flightsearch.flight_service.application.dto.request.FlightCreateRequestDto;
-import com.flightsearch.flight_service.application.dto.request.FlightSearchRequestDto;
-import com.flightsearch.flight_service.application.dto.response.AirportDto;
-import com.flightsearch.flight_service.application.dto.response.FlightResponseDto;
-import com.flightsearch.flight_service.application.dto.response.FlightSearchResponseDto;
+import com.flightsearch.flight_service.dto.request.DeleteRecordDto;
+import com.flightsearch.flight_service.dto.request.FlightCreateRequestDto;
+import com.flightsearch.flight_service.dto.request.FlightSearchRequestDto;
+import com.flightsearch.flight_service.dto.response.AirportDto;
+import com.flightsearch.flight_service.dto.response.FlightResponseDto;
+import com.flightsearch.flight_service.dto.response.FlightSearchResponseDto;
 import com.flightsearch.flight_service.entity.Flight;
 import com.flightsearch.flight_service.repository.FlightRepository;
 import com.flightsearch.flight_service.service.AirportClient;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
 import java.util.UUID;
@@ -50,6 +50,17 @@ public class FlightController {
                 savedFlight.getReturnDate(),
                 savedFlight.getPrice());
 
+    }
+
+    @DeleteMapping("/delete")
+    public String deleteFlight(@RequestBody DeleteRecordDto deleteRecordDto) {
+        if (!flightRepository.existsById(deleteRecordDto.id())) {
+            return "Bu Id'ye ait bir kayıt bulunamadı.";
+        } else {
+            flightRepository.deleteById(deleteRecordDto.id());
+            return "Bu kayıt silindi.";
+
+        }
     }
 
 

@@ -1,4 +1,4 @@
-package com.flightsearch.flight_service.application.dto.response;
+package com.flightsearch.flight_service.dto.response;
 
 import java.util.UUID;
 

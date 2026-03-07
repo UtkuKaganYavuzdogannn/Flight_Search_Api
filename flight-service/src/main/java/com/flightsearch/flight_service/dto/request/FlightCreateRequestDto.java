@@ -1,4 +1,4 @@
-package com.flightsearch.flight_service.application.dto.request;
+package com.flightsearch.flight_service.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 

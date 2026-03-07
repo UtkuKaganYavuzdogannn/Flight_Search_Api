@@ -2,6 +2,7 @@ package com.flightsearch.airport_service.controller;
 
 import com.flightsearch.airport_service.application.dto.request.AirportCreateRequestDto;
 import com.flightsearch.airport_service.application.dto.request.AirportUpdateRequestDto;
+import com.flightsearch.airport_service.application.dto.request.DeleteRecordDto;
 import com.flightsearch.airport_service.application.dto.response.AirportResponseDto;
 import com.flightsearch.airport_service.entity.Airport;
 import com.flightsearch.airport_service.repository.AirportRepository;
@@ -49,5 +50,18 @@ public class AirportController {
                 updatedAirport.getCity()
         );
     }
+
+    @DeleteMapping("/delete")
+    public String deleteAirport(@RequestBody DeleteRecordDto deleteRecordDto){
+        if(!airportRepository.existsById(deleteRecordDto.id())) {
+            return "Bu Id'ye ait bir kayıt bulunamadı.";
+        }
+        else {
+            airportRepository.deleteById(deleteRecordDto.id());
+            return "Bu kayıt silindi.";
+
+        }
+    }
+
 
 }
