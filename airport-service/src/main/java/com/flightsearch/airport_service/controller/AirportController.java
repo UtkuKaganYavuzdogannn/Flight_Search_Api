@@ -44,7 +44,7 @@ public class AirportController {
         airport.setCity(requestDto.city());
         Airport updatedAirport = airportRepository.save(airport);
 
-        // 4. Response DTO olarak dön
+        // Response DTO olarak dön
         return new AirportResponseDto(
                 updatedAirport.getId(),
                 updatedAirport.getCity()
@@ -61,6 +61,17 @@ public class AirportController {
             return "Bu kayıt silindi.";
 
         }
+    }
+
+    // Flight Service isteği için
+    @GetMapping("/airports/{id}")
+    public AirportResponseDto getAirportById(@PathVariable UUID id) {
+      Airport airport = airportRepository.findById(id).orElseThrow(() -> new RuntimeException("Airport bulunmadı.") );
+
+      return new AirportResponseDto(
+              airport.getId(),
+              airport.getCity()
+      );
     }
 
 

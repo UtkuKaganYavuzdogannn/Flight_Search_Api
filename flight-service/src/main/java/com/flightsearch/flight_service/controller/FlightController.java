@@ -5,7 +5,7 @@ import com.flightsearch.flight_service.dto.request.FlightCreateRequestDto;
 import com.flightsearch.flight_service.dto.request.FlightSearchRequestDto;
 import com.flightsearch.flight_service.dto.response.FlightResponseDto;
 import com.flightsearch.flight_service.dto.response.FlightSearchResponseDto;
-import com.flightsearch.flight_service.service.IFlightService;
+import com.flightsearch.flight_service.service.FlightService;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -14,9 +14,9 @@ import java.util.List;
 @RequestMapping("/flights")
 public class FlightController {
 
-    private final IFlightService flightService;
+    private final FlightService flightService;
 
-    public FlightController(IFlightService flightService) {
+    public FlightController(FlightService flightService) {
         this.flightService = flightService;
     }
 
