@@ -23,7 +23,6 @@ public class Airport {
         this.city = city;
     }
 
-
     public UUID getId() {
         return id;
     }

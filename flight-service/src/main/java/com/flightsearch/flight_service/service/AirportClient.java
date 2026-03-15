@@ -17,11 +17,19 @@ public class AirportClient {
     }
 
 
+
     public AirportDto getAirportById(UUID id){
 
         String url = "http://localhost:8081/airports/" + id ;
 
-        return restTemplate.getForObject(url, AirportDto.class);
+        try {
+            return restTemplate.getForObject(url, AirportDto.class);
+        }
+        catch (Exception e){
+            System.out.println("Airport-Service'e ulaşılamadı.");
+            return null;
+        }
+
     }
 
 

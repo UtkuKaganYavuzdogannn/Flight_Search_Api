@@ -9,7 +9,7 @@ import org.springframework.web.client.RestTemplate;
 public class RestTemplateConfig {
 
     @Bean
-    @LoadBalanced
+    // @LoadBalanced  ---> Eureka üzerinden gideceği servisi buluyor.
     public RestTemplate restTemplate() {
         return new RestTemplate();
     }

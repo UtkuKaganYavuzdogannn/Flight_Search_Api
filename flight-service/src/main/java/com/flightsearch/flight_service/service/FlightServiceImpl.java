@@ -35,28 +35,53 @@ public class FlightServiceImpl implements FlightService {
         AirportDto arrivalAirport =
                 airportClient.getAirportById(requestDto.arrivalAirportId());
 
+
         if (departureAirport == null || arrivalAirport == null) {
-            throw new RuntimeException("Airport bulunamadı");
+            throw new RuntimeException("BIR AIRPORT'A ULAŞILMIYOR.");
         }
 
-        Flight flight = new Flight(
+        Flight departureFlight = new Flight(
                 requestDto.departureAirportId(),
                 requestDto.arrivalAirportId(),
                 requestDto.departureDate(),
                 requestDto.returnDate(),
+                null,               //Henüz pair id generated edilmediği için boş
                 requestDto.price()
         );
 
-        Flight savedFlight = flightRepository.save(flight);
+        Flight savedDeparture = flightRepository.save(departureFlight);
+
+        // Buraya kadar kaydetmek istediğimiz ilk uçuş bilgisini kaydetmiş oluyoruz.
+        //Şimdi dönüş tarihli uçaksa 2. uçuş kaydını oluşturuyorum.
+
+        if (requestDto.returnDate() != null) {
+            Flight returnFlight = new Flight(
+                    requestDto.arrivalAirportId(), // Kalkış-Varış yer değiştirdi
+                    requestDto.departureAirportId(),
+                    requestDto.returnDate(), // Dönüş tarihi kalkış saati oldu
+                    null,
+                    savedDeparture.getId(), // Dönüşün referansı gidişin Id'si .
+                    requestDto.price()
+            );
+
+            Flight savedReturn = flightRepository.save(returnFlight);
+
+            // (Opsiyonel) Gidiş uçuşunu da güncellemek istersen:
+            savedDeparture.setPairID(savedReturn.getId());
+            flightRepository.save(savedDeparture);
+        }
+
 
         return new FlightResponseDto(
-                savedFlight.getId(),
-                savedFlight.getDepartureAirportId(),
-                savedFlight.getArrivalAirportId(),
-                savedFlight.getDepartureDate(),
-                savedFlight.getReturnDate(),
-                savedFlight.getPrice()
+              savedDeparture.getId(),
+                savedDeparture.getDepartureAirportId(),
+                savedDeparture.getArrivalAirportId(),
+                savedDeparture.getDepartureDate(),
+                savedDeparture.getReturnDate(),
+                savedDeparture.getPairID(),
+                savedDeparture.getPrice()
         );
+
     }
 
     @Override
@@ -87,6 +112,7 @@ public class FlightServiceImpl implements FlightService {
                 request.departureDate(),
                 request.returnDate(),
                 2500.0
+
         );
 
         return List.of(flight);

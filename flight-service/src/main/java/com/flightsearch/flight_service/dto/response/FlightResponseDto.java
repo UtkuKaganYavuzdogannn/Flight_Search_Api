@@ -9,5 +9,6 @@ public record FlightResponseDto(UUID id,
                                 UUID arrivalAirportId,
                                 LocalDateTime departureDate,
                                 LocalDateTime returnDate,
+                                UUID pairID,
                                 Double price) {
 }

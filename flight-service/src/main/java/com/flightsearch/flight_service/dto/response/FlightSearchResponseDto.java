@@ -10,4 +10,5 @@ public record FlightSearchResponseDto(
         LocalDateTime departureDate,
         LocalDateTime returnDate,
         Double price
+
 ) {}

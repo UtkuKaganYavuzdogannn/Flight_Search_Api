@@ -64,7 +64,7 @@ public class AirportController {
     }
 
     // Flight Service isteği için
-    @GetMapping("/airports/{id}")
+    @GetMapping("/{id}")
     public AirportResponseDto getAirportById(@PathVariable UUID id) {
       Airport airport = airportRepository.findById(id).orElseThrow(() -> new RuntimeException("Airport bulunmadı.") );
 

@@ -26,6 +26,9 @@ public class Flight {
     @Column(nullable = true)
     private LocalDateTime returnDate;
 
+    @Column
+    private UUID pairID;
+
 
 
     @Column(nullable = false)
@@ -39,11 +42,13 @@ public class Flight {
                   UUID arrivalAirportId,
                   LocalDateTime departureDate,
                   LocalDateTime returnDate,
+                  UUID pairID,
                   Double price) {
         this.departureAirportId = departureAirportId;
         this.arrivalAirportId = arrivalAirportId;
         this.departureDate = departureDate;
         this.returnDate = returnDate;
+        this.pairID = pairID;
         this.price = price;
     }
 
@@ -70,5 +75,13 @@ public class Flight {
 
     public Double getPrice() {
         return price;
+    }
+
+    public UUID getPairID() {
+        return pairID;
+    }
+
+    public void setPairID(UUID pairID) {
+        this.pairID = pairID;
     }
 }
