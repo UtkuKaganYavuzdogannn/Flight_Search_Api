@@ -95,7 +95,8 @@ public class FlightServiceImpl implements FlightService {
         return "Kayıt başarıyla silindi.";
     }
 
-    //Daha Sonra dolduralım.
+    // SEARCH METODU BURADA :
+
     @Override
     public List<FlightSearchResponseDto> searchFlights(FlightSearchRequestDto request) {
 
