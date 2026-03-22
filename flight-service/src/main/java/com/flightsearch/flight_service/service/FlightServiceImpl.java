@@ -9,7 +9,9 @@ import com.flightsearch.flight_service.dto.response.FlightSearchResponseDto;
 import com.flightsearch.flight_service.entity.Flight;
 import com.flightsearch.flight_service.repository.FlightRepository;
 import org.springframework.stereotype.Service;
+import com.flightsearch.flight_service.dto.mapper.FlightMapper;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -18,11 +20,13 @@ public class FlightServiceImpl implements FlightService {
 
     private final FlightRepository flightRepository;
     private final AirportClient airportClient;
+    private final FlightMapper flightMapper;
 
     public FlightServiceImpl(FlightRepository flightRepository,
-                             AirportClient airportClient) {
+                             AirportClient airportClient , FlightMapper flightMapper) {
         this.flightRepository = flightRepository;
         this.airportClient = airportClient;
+        this.flightMapper = flightMapper;
     }
 
     @Override
@@ -100,23 +104,28 @@ public class FlightServiceImpl implements FlightService {
     @Override
     public List<FlightSearchResponseDto> searchFlights(FlightSearchRequestDto request) {
 
-        AirportDto departureAirport =
-                airportClient.getAirportById(request.departureAirportId());
+       List<FlightSearchResponseDto> finalResponseList = new ArrayList<>();
 
-        AirportDto arrivalAirport =
-                airportClient.getAirportById(request.arrivalAirportId());
+       List<Flight> departureFlights = flightRepository.searchByRouteAndDate(request.departureAirportId(),
+                                                request.arrivalAirportId(),request.departureDate());
 
-        FlightSearchResponseDto flight = new FlightSearchResponseDto(
-                UUID.randomUUID(),
-                departureAirport,
-                arrivalAirport,
-                request.departureDate(),
-                request.returnDate(),
-                2500.0
+       for (Flight depFlight: departureFlights){
+           AirportDto departureAirport = airportClient.getAirportById(depFlight.getDepartureAirportId());
+           AirportDto arrivalAirport = airportClient.getAirportById(depFlight.getArrivalAirportId());
 
-        );
+           FlightSearchResponseDto gidisDto = flightMapper.toSearchResponse(depFlight, departureAirport, arrivalAirport);
+           finalResponseList.add(gidisDto);
 
-        return List.of(flight);
+           if (request.returnDate() != null && depFlight.getPairID()!= null){
+               flightRepository.findById(depFlight.getPairID()).ifPresent(returnFlight -> {
+                   FlightSearchResponseDto donusDto = flightMapper.toSearchResponse(returnFlight,arrivalAirport,departureAirport);
+                   finalResponseList.add(donusDto);
+               });
+           }
+       }
+
+
+       return finalResponseList;
     }
 
 
