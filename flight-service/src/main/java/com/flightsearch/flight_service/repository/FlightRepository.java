@@ -11,16 +11,12 @@ import java.util.UUID;
 
 public interface FlightRepository extends JpaRepository<Flight, UUID> {
 
-    @Query(value = "SELECT * FROM flights f" +
-                    "WHERE f.departure_airport_id = : depId" +
-                    "AND f.arrival_airport_id = : arrId" +
-                    "AND DATE(f.departure_date) = DATE(:depDate)" ,     //Date fonksiyonu tahih-saat uyumsuzluğu için
-                    nativeQuery = true)
+    @Query(value = "SELECT * FROM flights f WHERE f.departure_airport_id = :depId AND f.arrival_airport_id = :arrId AND DATE(f.departure_date) = DATE(:depDate)", nativeQuery = true)
     List<Flight> searchByRouteAndDate(
             @Param("depId") UUID depId,
             @Param("arrId") UUID arrId,
-            @Param("depDate")LocalDateTime depDate
-            );
+            @Param("depDate") LocalDateTime depDate
+    );
 
 
 }

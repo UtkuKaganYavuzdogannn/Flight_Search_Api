@@ -8,6 +8,7 @@ import com.flightsearch.flight_service.dto.response.FlightResponseDto;
 import com.flightsearch.flight_service.dto.response.FlightSearchResponseDto;
 import com.flightsearch.flight_service.entity.Flight;
 import com.flightsearch.flight_service.repository.FlightRepository;
+import com.flightsearch.flight_service.service.exception.FlightNotFoundException;
 import org.springframework.stereotype.Service;
 import com.flightsearch.flight_service.dto.mapper.FlightMapper;
 
@@ -15,12 +16,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+
 @Service
 public class FlightServiceImpl implements FlightService {
 
     private final FlightRepository flightRepository;
     private final AirportClient airportClient;
     private final FlightMapper flightMapper;
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(FlightServiceImpl.class);
 
     public FlightServiceImpl(FlightRepository flightRepository,
                              AirportClient airportClient , FlightMapper flightMapper) {
@@ -60,17 +63,17 @@ public class FlightServiceImpl implements FlightService {
 
         if (requestDto.returnDate() != null) {
             Flight returnFlight = new Flight(
-                    requestDto.arrivalAirportId(), // Kalkış-Varış yer değiştirdi
+                    requestDto.arrivalAirportId(), // Kalkış-varış yer değiştirdi
                     requestDto.departureAirportId(),
                     requestDto.returnDate(), // Dönüş tarihi kalkış saati oldu
                     null,
-                    savedDeparture.getId(), // Dönüşün referansı gidişin Id'si .
+                    savedDeparture.getId(), //Dönüşün referansı gidişin Id'si .
                     requestDto.price()
             );
 
             Flight savedReturn = flightRepository.save(returnFlight);
 
-            // (Opsiyonel) Gidiş uçuşunu da güncellemek istersen:
+            // Gidiş uçuşunu güncellemek için
             savedDeparture.setPairID(savedReturn.getId());
             flightRepository.save(savedDeparture);
         }
@@ -102,32 +105,45 @@ public class FlightServiceImpl implements FlightService {
     // SEARCH METODU BURADA :
 
     @Override
+
     public List<FlightSearchResponseDto> searchFlights(FlightSearchRequestDto request) {
+        // 1. Önce gidiş uçuşlarını buluyoruz
+        List<Flight> departureFlights = flightRepository.searchByRouteAndDate(
+                request.departureAirportId(),
+                request.arrivalAirportId(),
+                request.departureDate()
+        );
 
-       List<FlightSearchResponseDto> finalResponseList = new ArrayList<>();
+        // 2. Eğer hiç gidiş uçuşu yoksa direkt hata fırlatıyoruz (Junior seviyesi üstü yaklaşım)
+        if (departureFlights.isEmpty()) {
+            log.warn("Uçuş bulunamadı: {} -> {} tarihinde sefer yok.",
+                    request.departureAirportId(), request.departureDate());
+            throw new FlightNotFoundException("Aradığınız kriterlere uygun uçuş bulunamadı.");
+        }
 
-       List<Flight> departureFlights = flightRepository.searchByRouteAndDate(request.departureAirportId(),
-                                                request.arrivalAirportId(),request.departureDate());
+        List<FlightSearchResponseDto> finalResponseList = new ArrayList<>();
 
-       for (Flight depFlight: departureFlights){
-           AirportDto departureAirport = airportClient.getAirportById(depFlight.getDepartureAirportId());
-           AirportDto arrivalAirport = airportClient.getAirportById(depFlight.getArrivalAirportId());
+        for (Flight depFlight : departureFlights) {
+            // Havalimanı bilgilerini çekiyoruz
+            AirportDto departureAirport = airportClient.getAirportById(depFlight.getDepartureAirportId());
+            AirportDto arrivalAirport = airportClient.getAirportById(depFlight.getArrivalAirportId());
 
-           FlightSearchResponseDto gidisDto = flightMapper.toSearchResponse(depFlight, departureAirport, arrivalAirport);
-           finalResponseList.add(gidisDto);
+            // Gidiş DTO'sunu ekle
+            finalResponseList.add(flightMapper.toSearchResponse(depFlight, departureAirport, arrivalAirport));
 
-           if (request.returnDate() != null && depFlight.getPairID()!= null){
-               flightRepository.findById(depFlight.getPairID()).ifPresent(returnFlight -> {
-                   FlightSearchResponseDto donusDto = flightMapper.toSearchResponse(returnFlight,arrivalAirport,departureAirport);
-                   finalResponseList.add(donusDto);
-               });
-           }
-       }
+            // 3. Çift yönlü uçuş kontrolü: returnDate istenmişse ve uçuşun bir eşi (pair) varsa
+            if (request.returnDate() != null && depFlight.getPairID() != null) {
+                flightRepository.findById(depFlight.getPairID()).ifPresent(returnFlight -> {
+                    // Dönüşte kalkış ve varış yer değiştirir
+                    FlightSearchResponseDto donusDto = flightMapper.toSearchResponse(
+                            returnFlight, arrivalAirport, departureAirport);
+                    finalResponseList.add(donusDto);
+                });
+            }
+        }
 
-
-       return finalResponseList;
+        return finalResponseList;
     }
-
 
     //Burası da  daha sonra dolucak .
     @Override
